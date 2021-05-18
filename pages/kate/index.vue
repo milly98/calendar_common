@@ -6,26 +6,40 @@
     <div>지난 달 마지막 날짜(일): {{lmonthl}}월, {{ldatel}}일, {{lyol}}요일</div><br/>
 
 
-    <button class="title" @click="calendarMove(-1)">&lt;</button>
-    <h2 class="title">{{year}}년 {{month}}월</h2> <!-- 현재 달력의 년, 월 표시 -->
-    <button class="title" @click="calendarMove(1)">&gt;</button>
+    <div class="box">
+      <div class="inbox">
+      <button class="title" @click="calendarMove(-1)">&lt;</button>
+      <h2 class="title">{{year}}년 {{month}}월</h2> <!-- 현재 달력의 년, 월 표시 -->
+      <button class="title" @click="calendarMove(1)">&gt;</button>
+      <br/><br/>
+      <table>
+        <thead>
+        <!-- 요일은 고정이니 반복문 사용하여 테이블 헤더에 삽입 -->
+        <th v-for="day in days" :key="day">{{day}}</th>
+        </thead>
+        <tbody>
+<!--        <tr v-for="(row, index) in dates" :key="index">-->
+<!--          <td v-for="(d,index2) in row" :key="index2">-->
+<!--            <div @click="clickedChange(d)" :class="colored ? 'blue' : 'white'">-->
+<!--              {{d}}-->
+<!--            </div>-->
+<!--          </td>-->
+<!--        </tr>-->
+        <tr v-for="(row, index) in dates" :key="index">
+          <td v-for="(d, index2) in row" :key="index2" style="padding: 20px;">
+            <span v-if="isToday(year, month, d)" class="rounded">
+              {{d}}
+            </span>
+            <span v-else @click="clickDate(d)">
+              {{d}}
+            </span>
+          </td>
 
-
-    <table>
-      <thead>
-      <!-- 요일은 고정이니 반복문 사용하여 테이블 헤더에 삽입 -->
-      <th v-for="day in days" :key="day">{{day}}</th>
-      </thead>
-      <tbody>
-      <tr v-for="(row, index) in dates" :key="index">
-        <td v-for="(d,index2) in row" :key="index2">
-          <div @click="clickedChange" :class="clicked ? 'blue' : 'white'">
-            {{d}}
-          </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
 
 
 
@@ -82,6 +96,8 @@ export default {
 
       dates: [],
 
+      colored:false,
+
 
     }
 
@@ -131,9 +147,17 @@ export default {
 
   },
   methods:{
-    clickedChange() {
+    clickedChange(d) {
       this.clicked=!this.clicked;
       //console.log(this.clicked)
+      console.log('d',d)
+      console.log('this.date',this.date)
+      if (d===this.date){
+        this.colored=true;
+      }else {
+        this.colored=false;
+      }
+      //return d;
     },
     calendarMove(args){
       if(args<0){
@@ -149,16 +173,40 @@ export default {
         this.month =1;
       }
 
+      const [monthFirstDay, monthLastDate, lastMonthLastDate,] = this.getFirstDayLastDate(this.year, this.month);
+
+      // this.dates=this.getMonthOfDays(
+      //   this.tyo,
+      //   this.ldate,
+      //   this.ldatel
+      // );
       this.dates=this.getMonthOfDays(
-        this.tyo,
-        this.ldate,
-        this.ldatel
+        monthFirstDay,
+        monthLastDate,
+        lastMonthLastDate,
       );
 
       console.log('this,month',this.month)
       console.log('this.dates',this.dates)
 
     },
+
+    getFirstDayLastDate(year, month){
+      const firstDay = new Date(year, month, -1).getDay(); //이번 달 시작 요일
+      const lastDate = new Date(year, month, 0).getDate(); //이번 달 마지막 날짜
+      let lastYear = year-1;
+      let lastMonth = month -1;
+      if (month === 1){
+        lastMonth = 12;
+        //lastYear -= 1;
+      }
+      const prevLastDate = new Date(lastYear, lastMonth, 0).getDate(); //지난 달 마지막 날짜
+      return [firstDay, lastDate, prevLastDate];
+    },
+
+
+
+
     getMonthOfDays(tyo,ldate,ldatel){
       console.log('tyo',tyo)
       let day =1;
@@ -204,6 +252,15 @@ export default {
       //console.log(dates);
       return dates;
 
+    },
+    isToday(cyear, cmonth, cday){
+      let da = new Date();
+      return cyear == da.getFullYear() && cmonth ==da.getMonth()+1 && cday == da.getDate();
+
+    },
+    clickDate(d){
+      console.log(d);
+      return this.colored=true;
     }
 
   }
@@ -214,16 +271,26 @@ export default {
 </script>
 
 <style lang="scss">
-.white{
-  background-color: #ddd;
-  text-align: center;
-}
-.blue{
-  background-color: royalblue;
-  text-align: center;
-}
+
 .title{
   display: inline-block;
+}
+.box{
+  background-color: #9dc487;
+  align-content: center;
+  display: flex;
+  width:500px;
+  height:500px;
+}
+.inbox{
+  margin:auto;
+  text-align: center;
+}
+.rounded{
+  background-color: #599072;
+  border-radius: 20px;
+  padding: 10px;
+  color: white;
 }
 
 </style>
