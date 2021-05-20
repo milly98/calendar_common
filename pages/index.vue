@@ -6,10 +6,10 @@
       </h1>
       <div class="links">
         <div>
-          <nuxt-link :to="`/milly`">milly의 calendar</nuxt-link>
+          <nuxt-link :to="`/milly`">milly's calendar</nuxt-link>
         </div>
         <div>
-          <nuxt-link :to="`/kate`">kate 의 calendar</nuxt-link>
+          <nuxt-link :to="`/kate`">kate's calendar</nuxt-link>
         </div>
       </div>
     </div>
