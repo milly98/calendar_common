@@ -8,39 +8,39 @@
 
     <div class="box">
       <div class="inbox">
-      <button class="title" @click="calendarMove(-1)">&lt;</button>
-      <h2 class="title">{{year}}년 {{month}}월</h2> <!-- 현재 달력의 년, 월 표시 -->
-      <button class="title" @click="calendarMove(1)">&gt;</button>
-      <br/><br/>
-      <table>
-        <thead>
-        <!-- 요일은 고정이니 반복문 사용하여 테이블 헤더에 삽입 -->
-        <th v-for="day in days" :key="day">{{day}}</th>
-        </thead>
-        <tbody>
-<!--        <tr v-for="(row, index) in dates" :key="index">-->
-<!--          <td v-for="(d,index2) in row" :key="index2">-->
-<!--            <div @click="clickedChange(d)" :class="colored ? 'blue' : 'white'">-->
-<!--              {{d}}-->
-<!--            </div>-->
-<!--          </td>-->
-<!--        </tr>-->
-        <tr v-for="(row, index) in dates" :key="index">
-          <td v-for="(d, index2) in row" :key="index2" style="padding: 20px;">
+        <button class="title" @click="calendarMove(-1)">&lt;</button>
+        <h2 class="title">{{year}}년 {{month}}월</h2> <!-- 현재 달력의 년, 월 표시 -->
+        <button class="title" @click="calendarMove(1)">&gt;</button>
+        <br/><br/>
+        <table>
+          <thead>
+          <!-- 요일은 고정이니 반복문 사용하여 테이블 헤더에 삽입 -->
+          <th v-for="day in days" :key="day">{{day}}</th>
+          </thead>
+          <tbody>
+          <!--        <tr v-for="(row, index) in dates" :key="index">-->
+          <!--          <td v-for="(d,index2) in row" :key="index2">-->
+          <!--            <div @click="clickedChange(d)" :class="colored ? 'blue' : 'white'">-->
+          <!--              {{d}}-->
+          <!--            </div>-->
+          <!--          </td>-->
+          <!--        </tr>-->
+          <tr v-for="(row, index) in dates" :key="index">
+            <td v-for="(d, index2) in row" :key="index2" style="padding: 20px;">
             <span v-if="isToday(year, month, d)" class="rounded">
               {{d}}
             </span>
-            <span v- v-else-if="isHoliDay(month,d)" class="red">
+              <span v- v-else-if="isHoliDay(month,d)" class="red">
               {{d}}
             </span>
-            <span v-else>
+              <span v-else>
               {{d}}
             </span>
-          </td>
+            </td>
 
-        </tr>
-        </tbody>
-      </table>
+          </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -195,8 +195,10 @@ export default {
     },
 
     getFirstDayLastDate(year, month){
-      const firstDay = new Date(year, month, -1, 1).getDay();
+      console.log(month)
+      const firstDay = new Date(year, month-1, 1).getDay();
       const lastDate = new Date(year, month, 0).getDate();
+      console.log(lastDate)
       let lastYear = year;
       let lastMonth = month -1;
       if (month === 1){
@@ -215,6 +217,7 @@ export default {
       let day =1;
       //(지난달 마지막날 - 이번달 첫날 요일)+1
       //ex) 30 - 토(6) +1 = 25 (앞에 채워지는 지난달 날짜 시작)
+      console.log('tyo, ldate, ldate1',tyo,ldate,ldatel)
       let prevDay = (ldatel - tyo)+1;
       console.log("prevDay",prevDay);
       const dates=[];
