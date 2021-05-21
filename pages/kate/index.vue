@@ -1,9 +1,7 @@
 <template>
   <div>
     <div>오늘 날짜(일): {{month}}월, {{date}}일, {{yo}}요일</div>
-    <div>이번 달 첫 날짜(일): {{tmonth}}월, {{tdate}}일, {{tyo}}요일</div>
-    <div>이번 달 마지막 날짜(일): {{lmonth}}월, {{ldate}}일, {{lyo}}요일</div>
-    <div>지난 달 마지막 날짜(일): {{lmonthl}}월, {{ldatel}}일, {{lyol}}요일</div><br/>
+    <div>{{startDate}} - {{endDate}} {{bak}}박</div>
 
 
     <div class="box">
@@ -18,26 +16,18 @@
           <th v-for="day in days" :key="day">{{day}}</th>
           </thead>
           <tbody>
-          <!--        <tr v-for="(row, index) in dates" :key="index">-->
-          <!--          <td v-for="(d,index2) in row" :key="index2">-->
-          <!--            <div @click="clickedChange(d)" :class="colored ? 'blue' : 'white'">-->
-          <!--              {{d}}-->
-          <!--            </div>-->
-          <!--          </td>-->
-          <!--        </tr>-->
           <tr v-for="(row, index) in dates" :key="index">
-            <td v-for="(d, index2) in row" :key="index2" style="padding: 20px;">
+            <td v-for="(d, index2) in row" :key="index2">
             <span v-if="isToday(year, month, d)" class="rounded">
               {{d}}
             </span>
-              <span v- v-else-if="isHoliDay(month,d)" class="red">
+            <span v- v-else-if="isHoliDay(month,d)" class="red">
               {{d}}
             </span>
-              <span v-else>
+            <span v-else @click="clickDate(year,month,d)">
               {{d}}
             </span>
             </td>
-
           </tr>
           </tbody>
         </table>
@@ -78,70 +68,36 @@ export default {
       date:0,
       yo:0,
 
-      // tyear:0,
-      // tmonth:0,
-      // tdate:0,
-      // tyo:0,
-      //
-      //
-      // lyear:0,
-      // lmonth:0,
-      // ldate:0,
-      // lyo:0,
-      //
-      // lyearl:0,
-      // lmonthl:0,
-      // ldatel:0,
-      // lyol:0,
 
       lastMonthStart:0,
       nextMonthStart:0,
 
       dates: [],
 
-      colored:false,
+      startDate:0,
+      start:0,
+      startMonth:0,
+      endDate:0,
+      end:0,
+
+      counter:0,
+      bak:0,
+
+      prevDay:0,
+      startt:0,
 
 
     }
 
   },
   created(){
+    console.log('created')
     const today = new Date();
     this.date=today.getDate(); //오늘 일(ex 13)
     this.year=today.getFullYear(); //오늘 년도
     this.month=today.getMonth()+1; //오늘 월(js 월은 0부터 시작하므로..+1)
     this.yo=today.getDay();  //오늘 요일 (0일 1월 2화 3수 4목 5금 6토)
 
-    //이번달 첫날
-    const thisMonth = new Date();
-    thisMonth.setDate(1);
-    this.tyear=thisMonth.getYear();
-    this.tmonth=thisMonth.getMonth()+1;
-    this.tdate=thisMonth.getDate();
-    this.tyo=thisMonth.getDay();
-
-    //이번달 마지막날
-    const lastMonth = new Date();
-    lastMonth.setMonth(thisMonth.getMonth()+1);
-    lastMonth.setDate(thisMonth.getDate()-1);
-    this.lyear=lastMonth.getYear();
-    this.lmonth=lastMonth.getMonth()+1;
-    this.ldate=lastMonth.getDate();
-    this.lyo=lastMonth.getDay();
-
-    //지난달의 마지막날
-    const lastMonthLast = new Date();
-    lastMonthLast.setDate(0);
-    this.lyearl=lastMonthLast.getYear();
-    this.lmonthl=lastMonthLast.getMonth()+1;
-    this.ldatel=lastMonthLast.getDate();
-    this.lyol=lastMonthLast.getDay();
-
-    // this.dates=this.getMonthOfDays(
-    //     this.tyo,
-    //     this.ldate,
-    //     this.ldatel
-    // );
     this.calendarMove();
 
 
@@ -150,18 +106,6 @@ export default {
 
   },
   methods:{
-    clickedChange(d) {
-      this.clicked=!this.clicked;
-      //console.log(this.clicked)
-      console.log('d',d)
-      console.log('this.date',this.date)
-      if (d===this.date){
-        this.colored=true;
-      }else {
-        this.colored=false;
-      }
-      //return d;
-    },
     calendarMove(args){
       if(args<0){
         this.month -=1;
@@ -218,18 +162,20 @@ export default {
       //(지난달 마지막날 - 이번달 첫날 요일)+1
       //ex) 30 - 토(6) +1 = 25 (앞에 채워지는 지난달 날짜 시작)
       console.log('tyo, ldate, ldate1',tyo,ldate,ldatel)
-      let prevDay = (ldatel - tyo)+1;
-      console.log("prevDay",prevDay);
+      // let prevDay = (ldatel - tyo)+1;
+
+      this.prevDay = (ldatel - tyo)+1;
+      console.log("prevDay",this.prevDay);
       const dates=[];
       let weekOfDays=[];  //한 주의 날짜
       while(day<=ldate){  //이번달 마지막일 전까지
         if(day===1){
           for(let j=0; j<tyo; j+=1){  //이번달 첫날 요일보다 작을때까지(커지면 if탈출해 day+=1)
-            if(j===0) this.lastMonthStart=prevDay;
-            weekOfDays.push(prevDay);
+            //if(j===0) this.lastMonthStart=this.prevDay;
+            weekOfDays.push(this.prevDay);
             console.log("weekOfDays",weekOfDays);
             console.log("day",day);
-            prevDay +=1;
+            this.prevDay +=1;
           }
         }
         weekOfDays.push(day);
@@ -268,11 +214,48 @@ export default {
       if (month===5 && day===5){
         return true;
       }
-    }
-    // clickDate(d){
-    //   console.log(d);
-    //   return this.colored=true;
-    // }
+    },
+    clickDate(year,month,d){
+      console.log(d);
+      let end = 0;
+      this.counter++;
+      if (this.counter%2 ===1){
+        this.startDate=month+'월'+d+'일';
+        this.start = d;
+        this.startMonth = month;
+        //
+        let startt =  new Date(year,month-1,d);
+        this.startt = startt;
+        console.log('startt',startt);
+        console.log('start',this.start);
+        if(this.counter>=3){
+          this.endDate = 0 + '월' + 0 + '일';
+          this.bak = 0;
+          //end = d;
+        }
+      }else if(this.counter%2 ===0) {
+        this.endDate = month + '월' + d + '일';
+        end = d;
+
+        let endd =  new Date(year,month-1,d);
+        console.log('endd',endd)
+
+        console.log('end',end);
+        //this.bak = end-this.start;
+        this.bak = (endd-this.startt)/(3600*24*1000);
+        console.log('startt',this.startt);
+        console.log('bak',(endd-this.startt)/(3600*24*1000))
+
+
+      }
+
+      console.log(this.counter);
+
+
+
+
+      //return this.colored=true;
+    },
 
   }
 
@@ -305,6 +288,9 @@ export default {
 }
 .red{
   color: red;
+}
+td{
+  padding: 20px;
 }
 
 </style>
