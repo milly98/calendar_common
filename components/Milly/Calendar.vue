@@ -12,17 +12,13 @@
         <span class="day" v-for="day in day">{{ day }}</span>
       </div>
       <div class="week" v-for="week in setCalendar">
-<!--
-      // startday endday 면 class를 selected 로 바꾼다
-      // startday endday 사이에 있는 날이면 class를 range 로 바꾼다
-      -->
         <span
           @click="selectedDate = date.date; dateRange"
           class="date"
-          :class="startDay ? (date.exx === startDay ? 'startSelected' : date.exx === endDay ? 'endSelected' :
-          (date.exx > startDay && date.exx < endDay) ? 'range' : '') : ''"
+          :class="startDay ? (date.formedDate === startDay ? 'selected' : date.formedDate === endDay ? 'selected' :
+          (date.formedDate > startDay && date.formedDate < endDay) ? 'range' : '') : ''"
           v-for="(date,idx) in week">
-          <div > {{date.date}} </div>
+          <div :class="date.isholiday === true ? 'holiday' : ''"> {{date.date}} </div>
         </span>
       </div>
     </div>
@@ -30,7 +26,7 @@
 </template>
 
 <script>
-import Index from "../index";
+import Index from "../../pages";
 export default {
   components: {Index},
   data() {
@@ -42,6 +38,8 @@ export default {
       selectedDate : new Date().getDate(),
       startDay : null,
       endDay : null,
+      holidayList : ['20210101', '20210211', '20210212', '20210213', '20210301', '20210505', '20210519', '20210606',
+        '20210815', '20210920', '20210921', '20210922', '20211003', '20211009', '20211225'],
     };
   },
   mounted() {
@@ -62,14 +60,14 @@ export default {
       for (let i = 0; i < 6; i++){
         for (let k = 0; k < 7; k++){
           if(k < firstDayOfMonth && date === 0){
-            dateDay.push({date : '', day : k})
+            dateDay.push({date : '', day : k, formedDate :'', isholiday :  false})
           } else if(date > lastDate){
             if(k === 0) break;
-            dateDay.push({date : '', day : k})
+            dateDay.push({date : '', day : k, formedDate :'', isholiday : false})
           } else{
             date ++;
             let calenderDate = new Date(this.year, this.month, date)
-            dateDay.push({date : date, day : k, exx : this.format(calenderDate)})
+            dateDay.push({date : date, day : k, formedDate : this.format(calenderDate), isholiday : this.holidayList.includes(this.format(calenderDate)) ? true : k === 0 || k === 6 ? true : false})
           }
         }
         calendarData.push(dateDay);
@@ -79,11 +77,6 @@ export default {
       return calendarData
     },
     dateRange(){
-      // 초반에 start, end 다 비어있음.
-      // 두개 다 비어있는 경우 ? start에 선택 된 날 넣음.
-      // start보다 선택된게 크면 ? start/end 에 넣음
-      // start보다 선택된게 작으면 ? start/end 에 넣음
-
       if(this.startDay && this.startDay < this.format(new Date(this.year, this.month, this.selectedDate)) && this.startDay === this.endDay){
         console.log("endDay 가 바뀌어야 함")
         this.endDay = this.format(new Date(this.year, this.month, this.selectedDate));
@@ -94,44 +87,10 @@ export default {
       }
       console.log('startDay > ', this.startDay);
       console.log('endDay > ', this.endDay);
-      return 'selected';
+      return 'selected'; // return 이 필요가 없음
     },
-
   },
   methods: {
-    // isHoliday(){
-    //   // 주말, 공휴일은 클래스를 추가해서 빨간색으로 날을 표시하도록 해야 함.
-    //   // 주말은 day === 0 || day === 6 일요일 || 토요일
-    //   // 공휴일은 연월일 을 'YYYYMMDD' 형식으로 저장 해놓기 => 그럼 calendar 에 'YYYYMMDD' 형식으로 저장을 해야 하는가 비교 할 때마다 만드는게 나은가? 무엇이 효율적...?
-    //
-    //   const holidayList = ['20210501', '20210502',
-    //     '20210508', '20210509',
-    //     '20210515', '20210516',
-    //     '20210522', '20210523',
-    //     '20210529', '20210530']
-    //   console.log(`${this.year}${this.month+1}${this.date}`)
-    //   if(holidayList.includes(`${this.year}${this.month+1}${this.date}`)) return true;
-    //   return false;
-    // },
-
-    callHoliday(){
-      // var xhr = new XMLHttpRequest();
-      // var url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'; /*URL*/
-      // var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+'b%2Bs0OmI7q0%2B5rtcOg9cPQ8NlFZ0eWbdVKEJdA1riLNYJ3M7y%2Brmyxe5jHfCWC8NR4CzemZvBZ%2B2EALje81R85A%3D%3D'; /*Service Key*/
-      // queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /**/
-      // queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /**/
-      // queryParams += '&' + encodeURIComponent('solYear') + '=' + encodeURIComponent('2019'); /**/
-      // queryParams += '&' + encodeURIComponent('solMonth') + '=' + encodeURIComponent('02'); /**/
-      // xhr.open('GET', url + queryParams);
-      // xhr.onreadystatechange = function () {
-      //   if (this.readyState == 4) {
-      //     alert('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
-      //   }
-      // };
-      //
-      // xhr.send('');
-
-    },
     format(date){
       let yyyy = date.getFullYear();
       let mm = date.getMonth()+1;
@@ -144,6 +103,26 @@ export default {
       }
       return `${yyyy}${mm}${dd}`;
     }
+  },
+  callHoliday(){
+    // var xhr = new XMLHttpRequest();
+    // var url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'; /*URL*/
+    // var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+'b%2Bs0OmI7q0%2B5rtcOg9cPQ8NlFZ0eWbdVKEJdA1riLNYJ3M7y%2Brmyxe5jHfCWC8NR4CzemZvBZ%2B2EALje81R85A%3D%3D'; /*Service Key*/
+    // queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /**/
+    // queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /**/
+    // queryParams += '&' + encodeURIComponent('solYear') + '=' + encodeURIComponent('2019'); /**/
+    // queryParams += '&' + encodeURIComponent('solMonth') + '=' + encodeURIComponent('02'); /**/
+    // xhr.open('GET', url + queryParams);
+    // xhr.onreadystatechange = function () {
+    //   if (this.readyState == 4) {
+    //     alert('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
+    //   }
+    // };
+    //
+    // xhr.send('');
+
+    // Access-Control-Allow-Origin 에러 발생
+    // axios 하려고 했으나 실패 -> 다시 시도 해보기
   },
 }
 </script>
@@ -198,21 +177,8 @@ export default {
 .margin50{
   margin: 50px;
 }
-.startSelected{
+.selected{
   width: 50%;
-  height: 100%;
-  background-color: #f3f5ed;
-  > div {
-    color: #FFF;
-    font-weight: bold;
-    height: 40px;
-    width: 40px;
-    border-radius: 50px;
-    background-color: #657a16;
-  }
-}
-.endSelected{
-  width: 100%;
   height: 100%;
   background-color: #f3f5ed;
   > div {
@@ -229,5 +195,8 @@ export default {
   width: 100%;
   height: 100%;
   background-color: #f3f5ed;
+}
+.holiday{
+  color: red;
 }
 </style>
