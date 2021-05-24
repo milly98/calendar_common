@@ -21,16 +21,10 @@
            <span
              @click="clickDate(year,month,d)"
              :class=" startt ? ((d === startt.getDate() && month === startt.getMonth()+1) || (d === enddDate && month === enddMonth) ? 'crounded' :
-              ((d>startt.getDate()) || ((month > startt.getMonth()+1)) && month<=enddMonth ) && ((d<enddDate) || ((month < enddMonth)) && month>=startt.getMonth()+1) ? 'range' : '') : ''">
+              ((d>startt.getDate()) || ((month > startt.getMonth()+1)) && month<=enddMonth ) && ((d<enddDate) || ((month < enddMonth)) && month>=startt.getMonth()+1) ?
+              ( month === starttMonth || month === enddMonth ? 'range' : '' ) : '') : ''">
                 {{d}}
               </span>
-<!--              <span-->
-<!--                @click="clickDate(year,month,d)"-->
-<!--                :class=" startt ? ((d === startt.getDate() && month === startt.getMonth()+1) || (d === enddDate && month === enddMonth) ? 'crounded' :-->
-<!--              ((d>startt.getDate()) || ((month === startt.getMonth()+1)) && month<enddMonth) && ((d<enddDate) || ((month === enddMonth)) && month>starttMonth) ? 'range' :-->
-<!--              ((d>startt.getDate()) || ((month > startt.getMonth()+1)) && month<=enddMonth ) && ((d<enddDate) || ((month < enddMonth)) && month>=startt.getMonth()+1) ? 'range2' : '') : ''">-->
-<!--                {{d}}-->
-<!--              </span>-->
             </td>
           </tr>
           </tbody>
