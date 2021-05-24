@@ -7,7 +7,7 @@ const app = express();
 
 //
 app.get('/getRestDeInfo', function(req, res) {
-  const params = `serviceKey=b%2Bs0OmI7q0%2B5rtcOg9cPQ8NlFZ0eWbdVKEJdA1riLNYJ3M7y%2Brmyxe5jHfCWC8NR4CzemZvBZ%2B2EALje81R85A%3D%3D&solYear=${req.query.year}&solMonth=${req.query.date}`
+  const params = `serviceKey=b%2Bs0OmI7q0%2B5rtcOg9cPQ8NlFZ0eWbdVKEJdA1riLNYJ3M7y%2Brmyxe5jHfCWC8NR4CzemZvBZ%2B2EALje81R85A%3D%3D&numOfRows=20&solYear=${req.query.year}&solMonth=${req.query.date}`
   axios.get(`http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?${params}`,{}
    ).then((resp) => {
      res.header("Access-Control-Allow-Origin", "*");

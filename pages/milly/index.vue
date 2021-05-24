@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <calendar/>
+    <calendar
+      :restDate="restDateList"
+      @getRestDate="getRestDate"
+    ></calendar>
   </div>
 </template>
 
@@ -12,27 +15,27 @@ export default {
   components: {Calendar},
   data() {
     return {
+      restDateList:[],
     };
   },
-  mounted() {
-    console.log('mounted')
-    this.getRestDate('2021','05');
-
-  },
   methods:{
-    getRestDate(year, date){
-      // this.$axios.get(`/api/getRestDeInfo?serviceKey=b%2Bs0OmI7q0%2B5rtcOg9cPQ8NlFZ0eWbdVKEJdA1riLNYJ3M7y%2Brmyxe5jHfCWC8NR4CzemZvBZ%2B2EALje81R85A%3D%3D&solYear=${year}&solMonth=${date}`).then((resp) => {
-      //   console.log('resp >> ', resp);
-      // });
-
+    getRestDate(year){
+      console.log('getRestDate 진입  year :', year)
       this.$apis.getRestDeInfo({
         year: year,
-        date: date,
+        date: '',
       }).then((resp) => {
-        console.log('resp resp resp  >>  ', resp)
+        console.log('getRestDate resp  >>  ', resp)
+        this.restDateList = [];
+        resp.data.items.item.forEach((v)=>{
+          this.restDateList.push(`${v.locdate}`);
+        })
       });
+      return this.restDateList;
     }
   },
+  computed:{
+  }
 }
 </script>
 
