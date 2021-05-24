@@ -37,14 +37,12 @@
 </template>
 
 <script>
-import Index from "../../pages";
 export default {
   props: {
     restDate:{
       default: [],
     }
   },
-  components: {Index},
   data() {
     return {
       day : ['일','월','화','수','목','금','토'],
