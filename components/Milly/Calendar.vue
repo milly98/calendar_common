@@ -1,11 +1,22 @@
 <template>
   <div class="container">
-    <div class="title"> Milly's calendar</div>
-    <input v-model="year"/>
+    <div class="summary">
+      <div v-if="startDay && format(startDay) !== format(endDay)">
+        <span>{{ startDay.getMonth() + 1 }}월 {{ startDay.getDate() }}일</span>
+        <span> ~ {{ endDay.getMonth() + 1 }}월 {{ endDay.getDate() }}일</span>
+        <span>  {{ (endDay-startDay)/(60*60*24*1000) }}박</span>
+      </div>
+      <div v-else-if="startDay">
+        <span>체크아웃 날짜를 선택하세요.</span>
+      </div>
+      <div v-else>
+        <span>체크인 날짜를 선택하세요.</span>
+      </div>
+    </div>
     <div class="month margin50">
-      <div @click="month > 0 ? month-- : (month = 11, year--)"> < </div>
-      <div> {{ month + 1 }} 월 </div>
-      <div @click="month < 11 ? month++ : (month = 0, year++)"> > </div>
+      <div @click="month > 0 ? month-- : (month = 11, year--, getRestDate)"> < </div>
+      <div> {{ year }} 년  {{ month + 1 }} 월 </div>
+      <div @click="month < 11 ? month++ : (month = 0, year++, getRestDate)"> > </div>
     </div>
     <div class="calendar">
       <div class="weekday">
@@ -13,12 +24,12 @@
       </div>
       <div class="week" v-for="week in setCalendar">
         <span
-          @click="selectedDate = date.date; dateRange"
+          @click="selectedDate = date.date; dateRange;"
           class="date"
-          :class="startDay ? (date.formedDate === startDay ? 'selected' : date.formedDate === endDay ? 'selected' :
-          (date.formedDate > startDay && date.formedDate < endDay) ? 'range' : '') : ''"
+          :class="startDay ? (date.formedDate === format(startDay) ? 'selected' : date.formedDate === format(endDay) ? 'selected' :
+          (date.formedDate > format(startDay) && date.formedDate < format(endDay)) ? 'range' : '') : ''"
           v-for="(date,idx) in week">
-          <div :class="date.isholiday === true ? 'holiday' : ''"> {{date.date}} </div>
+          <div :class="date.isHoliday === true ? 'holiday' : ''"> {{date.date}} </div>
         </span>
       </div>
     </div>
@@ -28,6 +39,11 @@
 <script>
 import Index from "../../pages";
 export default {
+  props: {
+    restDate:{
+      default: [],
+    }
+  },
   components: {Index},
   data() {
     return {
@@ -44,7 +60,7 @@ export default {
   },
   mounted() {
     this.setCalendar;
-    // this.callHoliday();
+    this.getRestDate;
   },
   computed:{
     setCalendar(){
@@ -60,34 +76,34 @@ export default {
       for (let i = 0; i < 6; i++){
         for (let k = 0; k < 7; k++){
           if(k < firstDayOfMonth && date === 0){
-            dateDay.push({date : '', day : k, formedDate :'', isholiday :  false})
+            dateDay.push({date : '', day : k, formedDate :'', isHoliday :  false})
           } else if(date > lastDate){
             if(k === 0) break;
-            dateDay.push({date : '', day : k, formedDate :'', isholiday : false})
+            dateDay.push({date : '', day : k, formedDate :'', isHoliday : false})
           } else{
             date ++;
             let calenderDate = new Date(this.year, this.month, date)
-            dateDay.push({date : date, day : k, formedDate : this.format(calenderDate), isholiday : this.holidayList.includes(this.format(calenderDate)) ? true : k === 0 || k === 6 ? true : false})
+            dateDay.push({date : date, day : k, formedDate : this.format(calenderDate), isHoliday : this.restDate.includes(this.format(calenderDate)) ? true : k === 0 || k === 6 ? true : false})
           }
         }
         calendarData.push(dateDay);
         dateDay = [];
       }
-      console.log(calendarData);
       return calendarData
     },
     dateRange(){
-      if(this.startDay && this.startDay < this.format(new Date(this.year, this.month, this.selectedDate)) && this.startDay === this.endDay){
-        console.log("endDay 가 바뀌어야 함")
-        this.endDay = this.format(new Date(this.year, this.month, this.selectedDate));
+      if(this.startDay && this.format(this.startDay) < this.format(new Date(this.year, this.month, this.selectedDate)) && this.format(this.startDay) === this.format(this.endDay)){
+        this.endDay = new Date(this.year, this.month, this.selectedDate);
       }else {
-        console.log("둘 다 바뀌어야 함")
-        this.startDay = this.format(new Date(this.year, this.month, this.selectedDate));
-        this.endDay = this.format(new Date(this.year, this.month, this.selectedDate));
+        this.startDay = new Date(this.year, this.month, this.selectedDate);
+        this.endDay = new Date(this.year, this.month, this.selectedDate);
       }
       console.log('startDay > ', this.startDay);
       console.log('endDay > ', this.endDay);
-      return 'selected'; // return 이 필요가 없음
+      return 'selected'; // return 필요 없음
+    },
+    getRestDate(){
+      this.$emit('getRestDate',this.year);
     },
   },
   methods: {
@@ -104,26 +120,7 @@ export default {
       return `${yyyy}${mm}${dd}`;
     }
   },
-  callHoliday(){
-    // var xhr = new XMLHttpRequest();
-    // var url = 'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'; /*URL*/
-    // var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+'b%2Bs0OmI7q0%2B5rtcOg9cPQ8NlFZ0eWbdVKEJdA1riLNYJ3M7y%2Brmyxe5jHfCWC8NR4CzemZvBZ%2B2EALje81R85A%3D%3D'; /*Service Key*/
-    // queryParams += '&' + encodeURIComponent('pageNo') + '=' + encodeURIComponent('1'); /**/
-    // queryParams += '&' + encodeURIComponent('numOfRows') + '=' + encodeURIComponent('10'); /**/
-    // queryParams += '&' + encodeURIComponent('solYear') + '=' + encodeURIComponent('2019'); /**/
-    // queryParams += '&' + encodeURIComponent('solMonth') + '=' + encodeURIComponent('02'); /**/
-    // xhr.open('GET', url + queryParams);
-    // xhr.onreadystatechange = function () {
-    //   if (this.readyState == 4) {
-    //     alert('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
-    //   }
-    // };
-    //
-    // xhr.send('');
 
-    // Access-Control-Allow-Origin 에러 발생
-    // axios 하려고 했으나 실패 -> 다시 시도 해보기
-  },
 }
 </script>
 
@@ -173,7 +170,16 @@ export default {
       font-size: 30px;
     }
   }
+  .summary{
+    display: flex;
+    justify-content: center;
+    margin: 50px 0 0 0;
+    font-weight: bold;
+    color: #657a16;
+    font-size: 20px;
+  }
 }
+
 .margin50{
   margin: 50px;
 }
