@@ -1,5 +1,7 @@
+import bodyParser from 'body-parser';
+
 export default {
-  // Global page headers: https://go.nuxtjs.dev/config-head
+  // Global page 0headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'calender_common',
     htmlAttrs: {
@@ -21,6 +23,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/utils.js'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -36,5 +39,10 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+  },
+  serverMiddleware: [
+    bodyParser.json(),
+    bodyParser.urlencoded({ extended: true }),
+    { path: '/api', handler: '~/api/index.js' },
+  ],
 }
