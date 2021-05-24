@@ -17,16 +17,20 @@
           </thead>
           <tbody>
           <tr v-for="(row, index) in dates" :key="index">
-            <td v-for="(d, index2) in row" :key="index2">
-            <span v-if="isToday(year, month, d)" class="rounded">
-              {{d}}
-            </span>
-            <span v- v-else-if="isHoliDay(month,d)" class="red">
-              {{d}}
-            </span>
-            <span v-else @click="clickDate(year,month,d)">
-              {{d}}
-            </span>
+            <td v-for="(d, index2) in row" :key="index2" :class="isToday(year,month,d) ? 'rounded' : ''">
+           <span
+             @click="clickDate(year,month,d)"
+             :class=" startt ? ((d === startt.getDate() && month === startt.getMonth()+1) || (d === enddDate && month === enddMonth) ? 'crounded' :
+              ((d>startt.getDate()) || ((month > startt.getMonth()+1)) && month<=enddMonth ) && ((d<enddDate) || ((month < enddMonth)) && month>=startt.getMonth()+1) ? 'range' : '') : ''">
+                {{d}}
+              </span>
+<!--              <span-->
+<!--                @click="clickDate(year,month,d)"-->
+<!--                :class=" startt ? ((d === startt.getDate() && month === startt.getMonth()+1) || (d === enddDate && month === enddMonth) ? 'crounded' :-->
+<!--              ((d>startt.getDate()) || ((month === startt.getMonth()+1)) && month<enddMonth) && ((d<enddDate) || ((month === enddMonth)) && month>starttMonth) ? 'range' :-->
+<!--              ((d>startt.getDate()) || ((month > startt.getMonth()+1)) && month<=enddMonth ) && ((d<enddDate) || ((month < enddMonth)) && month>=startt.getMonth()+1) ? 'range2' : '') : ''">-->
+<!--                {{d}}-->
+<!--              </span>-->
             </td>
           </tr>
           </tbody>
@@ -34,9 +38,6 @@
       </div>
     </div>
 
-
-
-    <!-- :class="{'white': !clicked, 'blue': clicked}" -->
 
 
   </div>
@@ -52,8 +53,6 @@ export default {
   data(){
 
     return{
-      clicked: false,
-
       days: [
         '일요일',
         '월요일',
@@ -75,17 +74,16 @@ export default {
       dates: [],
 
       startDate:0,
-      start:0,
-      startMonth:0,
       endDate:0,
-      end:0,
 
       counter:0,
       bak:0,
 
-      prevDay:0,
       startt:0,
-
+      endd:0,
+      enddDate:0,
+      enddMonth:0,
+      starttMonth:0,
 
     }
 
@@ -122,11 +120,7 @@ export default {
 
       const [monthFirstDay, monthLastDate, lastMonthLastDate,] = this.getFirstDayLastDate(this.year, this.month);
 
-      // this.dates=this.getMonthOfDays(
-      //   this.tyo,
-      //   this.ldate,
-      //   this.ldatel
-      // );
+
       this.dates=this.getMonthOfDays(
         monthFirstDay,
         monthLastDate,
@@ -171,10 +165,10 @@ export default {
       while(day<=ldate){  //이번달 마지막일 전까지
         if(day===1){
           for(let j=0; j<tyo; j+=1){  //이번달 첫날 요일보다 작을때까지(커지면 if탈출해 day+=1)
-            //if(j===0) this.lastMonthStart=this.prevDay;
-            weekOfDays.push(this.prevDay);
-            console.log("weekOfDays",weekOfDays);
-            console.log("day",day);
+            //weekOfDays.push(this.prevDay);
+            weekOfDays.push('');
+            //console.log("weekOfDays",weekOfDays);
+            //console.log("day",day);
             this.prevDay +=1;
           }
         }
@@ -195,7 +189,8 @@ export default {
       console.log("len",len)
       if(len > 0 && len<7){
         for(let k=1; k<=7-len; k+=1){ //1부터 7의 (이번달 날짜 길이 제외한)나머지 칸에 집어넣음
-          weekOfDays.push(k);
+          //weekOfDays.push(k);
+          weekOfDays.push('');
         }
       }
       if(weekOfDays.length>0) dates.push(weekOfDays); //남은 날짜 추가(weekOfDays배열)
@@ -217,44 +212,54 @@ export default {
     },
     clickDate(year,month,d){
       console.log(d);
-      let end = 0;
+      //let end = 0;
       this.counter++;
       if (this.counter%2 ===1){
         this.startDate=month+'월'+d+'일';
-        this.start = d;
-        this.startMonth = month;
-        //
+
         let startt =  new Date(year,month-1,d);
         this.startt = startt;
+        this.starttMonth = startt.getMonth()+1;
         console.log('startt',startt);
-        console.log('start',this.start);
+        console.log('-starttMonth',startt.getMonth()+1)
+        console.log('-month',month)
+
         if(this.counter>=3){
           this.endDate = 0 + '월' + 0 + '일';
+          this.enddDate=null;
           this.bak = 0;
-          //end = d;
+
         }
       }else if(this.counter%2 ===0) {
         this.endDate = month + '월' + d + '일';
-        end = d;
 
-        let endd =  new Date(year,month-1,d);
-        console.log('endd',endd)
+        this.endd =  new Date(year,month-1,d);
+        console.log('endd',this.endd)
+        this.enddDate = this.endd.getDate();
+        this.enddMonth = this.endd.getMonth()+1;
+        console.log('-enddMonth',this.enddMonth)
+        console.log('-month',month)
+        if(this.startt>this.endd){
+          this.startDate = 0 + '월' + 0 + '일';
+          this.endDate = 0 + '월' + 0 + '일';
+          this.endd=null;
+          this.startt=0;
+          d=0;
+          alert('퇴실일이 입실일보다 전일 수 없습니다.');
+        }
 
-        console.log('end',end);
-        //this.bak = end-this.start;
-        this.bak = (endd-this.startt)/(3600*24*1000);
+
+        this.bak = (this.endd-this.startt)/(3600*24*1000);
         console.log('startt',this.startt);
-        console.log('bak',(endd-this.startt)/(3600*24*1000))
+        console.log('bak',(this.endd-this.startt)/(3600*24*1000))
 
 
       }
 
-      console.log(this.counter);
+      console.log('counter',this.counter);
 
 
 
-
-      //return this.colored=true;
     },
 
   }
@@ -283,8 +288,20 @@ export default {
 .rounded{
   background-color: #599072;
   border-radius: 20px;
-  padding: 10px;
   color: white;
+}
+.crounded{
+  background-color: #596990;
+  border-radius: 20px;
+  padding: 10px;
+  margin: -10px;
+  color: white;
+}
+.range{
+  color: white;
+}
+.range2{
+  color: #ddd;
 }
 .red{
   color: red;
