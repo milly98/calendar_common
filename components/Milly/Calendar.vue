@@ -52,8 +52,7 @@ export default {
       selectedDate : new Date().getDate(),
       startDay : null,
       endDay : null,
-      holidayList : ['20210101', '20210211', '20210212', '20210213', '20210301', '20210505', '20210519', '20210606',
-        '20210815', '20210920', '20210921', '20210922', '20211003', '20211009', '20211225'],
+      restCalledYear : [],
     };
   },
   mounted() {
@@ -101,7 +100,10 @@ export default {
       return 'selected'; // return 필요 없음
     },
     getRestDate(){
-      this.$emit('getRestDate',this.year);
+      if(!this.restCalledYear.includes(this.year)){
+        this.restCalledYear.push(this.year)
+        this.$emit('getRestDate',this.year);
+      }
     },
   },
   methods: {

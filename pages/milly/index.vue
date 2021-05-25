@@ -26,7 +26,6 @@ export default {
         date: '',
       }).then((resp) => {
         console.log('getRestDate resp  >>  ', resp)
-        this.restDateList = [];
         resp.data.items.item.forEach((v)=>{
           this.restDateList.push(`${v.locdate}`);
         })
